@@ -5,6 +5,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
 
+  let markers = [];
+
 
   // Animal Data Import
   
@@ -18,6 +20,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         const token = "9d5f016f-cbbe-4976-a448-5063abff6aa7";
         const url = `https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=312057662&sensor_type=gps&api-token=${token}`
         const response = await fetch(url);
+
+        
         
         const text = await response.text();
         console.log("Response Text:", text);
@@ -52,9 +56,20 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         if (item.location_lat && item.location_long) {
                             const lat = parseFloat(item.location_lat);
                             const lon = parseFloat(item.location_long);
+                            const tag = parseFloat(item.tag_id);
+                            const timestamp = parseFloat(item.timestamp);
 
                             const marker = L.marker([lat, lon]).addTo(map);
-                            marker.bindPopup(`<b>${item.name}</b><br>Some additional info about the animal.`);
+                            
+
+                            const popupContent = 
+                            `<b>Individual ID:</b> ${item.individual_id} <br>
+                            <b>Tag ID:</b> ${tag} <br>
+                            <b>Timestamp:</b> ${timestamp}`
+
+                            marker.bindPopup(popupContent);
+
+                                    markers.push(marker);
                         } else {
                             console.log("No data available");
                         }
@@ -67,6 +82,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             }
 
         });
+
                     
         } catch (error){
             console.error("Error fetching all studies", error);
@@ -74,9 +90,15 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                           }
         }
 
-            
+            // -----Clear Markers-----
          
-        
+   function clearPreviousMarker(markers){
+
+        for (let i = 0; i < markers.length; i++) {
+                markers[i].remove();
+        }
+
+   }     
 
       
 
@@ -92,7 +114,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         } else {
             console.log("Please select a study");
         }
-
+            clearPreviousMarker(markers);
 
      });
 
@@ -104,6 +126,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             }
         }
      })
+
      
      animalDataSearch();
             
