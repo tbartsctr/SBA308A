@@ -1,6 +1,6 @@
 // Map Import
 
-var map = L.map('map').setView([51.505, -0.09], 13);
+var map = L.map('map').setView([41.344, -6.961], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
@@ -8,7 +8,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
   // Animal Data Import
   
-  const searchBar = document.getElementsByClassName("searchBarDiv")[0];
+  const studyDropdown = document.getElementById("studyDropdown");
   const searchButton = document.getElementById("searchBtn");
 
 
@@ -28,17 +28,30 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             complete: function(results) {
                 console.log("Parsed CSV Data:", results.data);
 
+
+                const studiesList = [...new Set(results.data.map(item => item.individual_id))];
+                    studiesList.forEach( individual_id => {
+
+                        const option = document.createElement("option")
+                        option.value = individual_id;
+                        option.text = individual_id;
+
+                        studyDropdown.appendChild(option);
+                    });
+
+               
+
         
 
-                const filteredData = results.data.filter( item => {
-                    return item.study_name && item.study_name.toLowerCase().includes(query.toLowerCase());
-                });
+                const filteredData = results.data.filter( item => item.individual_id === query) 
+                    
+                
 
                     if (filteredData.length > 0) {
                         filteredData.forEach(item => {
-                        if (item.latitude && item.longitude) {
-                            const lat = item.latitude;
-                            const lon = item.longitude;
+                        if (item.location_lat && item.location_long) {
+                            const lat = parseFloat(item.location_lat);
+                            const lon = parseFloat(item.location_long);
 
                             const marker = L.marker([lat, lon]).addTo(map);
                             marker.bindPopup(`<b>${item.name}</b><br>Some additional info about the animal.`);
@@ -67,30 +80,32 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
       
 
-     animalDataSearch();
     
+    
+    //  ----Event Listeners 
 
      searchButton.addEventListener("click", ()=>{
-        const query = searchBar.value.trim();
+        const selectedStudy = studyDropdown.value;
 
-        if(query){
-            animalDataSearch(query);
+        if(selectedStudy){
+            animalDataSearch(selectedStudy);
         } else {
-            console.log("Please enter a search term");
+            console.log("Please select a study");
         }
 
 
      });
 
-     searchBar.addEventListener("keyup", (event)=> {
+     studyDropdown.addEventListener("keyup", (event)=> {
         if (event.key === "Enter"){
-            const query = searchBar.value.trim();
+            const query = studyDropdown.value
             if (query) {
                 animalDataSearch(query);
             }
         }
      })
-
+     
+     animalDataSearch();
             
 
 
