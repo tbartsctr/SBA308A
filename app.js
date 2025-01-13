@@ -22,21 +22,17 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         const text = await response.text();
         console.log("Response Text:", text);
 
-        const csv = Papa.parse(text, { header: true, skipEmptyLines: true });
+        Papa.parse(text, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                console.log("Parsed CSV Data:", results.data);
 
-            const data = await response.text();
-                console.log("Fetched Data", data);
-            
-                if (Array.isArray(data)){
-                    const filteredData = data.filter(item => {
+        
 
-                        return item.study_name && item.study_name.toLowerCase().includes(query.toLowerCase());
-                    });
-
-
-
-                    };
-
+                const filteredData = results.data.filter( item => {
+                    return item.study_name && item.study_name.toLowerCase().includes(query.toLowerCase());
+                });
 
                     if (filteredData.length > 0) {
                         filteredData.forEach(item => {
@@ -49,16 +45,27 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         } else {
                             console.log("No data available");
                         }
-                    })
-                }
+                        });
+                    } else {
+                        console.log("No studies found matching the query.");
+
+                    }
 
             }
-            catch (error){
+
+        });
+                    
+        } catch (error){
             console.error("Error fetching all studies", error);
+            
+                          }
+        }
 
-              }
+            
+         
+        
 
-     } 
+      
 
      animalDataSearch();
     
@@ -86,5 +93,4 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
             
 
-  
 
