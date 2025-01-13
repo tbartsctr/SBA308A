@@ -32,6 +32,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             complete: function(results) {
                 console.log("Parsed CSV Data:", results.data);
 
+                // -----push studies to dropdown menu-----
 
                 const studiesList = [...new Set(results.data.map(item => item.individual_id))];
                     studiesList.forEach( individual_id => {
@@ -45,7 +46,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
                
 
-        
+        // -------push location data to map------
 
                 const filteredData = results.data.filter( item => item.individual_id === query) 
                     
@@ -88,9 +89,43 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             console.error("Error fetching all studies", error);
             
                           }
+        };
+// -----------Function for POST new data (ONLY AN EXAMPLE, I DONT BELIEVE THESE STUDIES HAVE DATA EDITING EASILY AVAILIBLE)
+
+        function postNewData(data){
+            fetch(`https://www.movebank.org/movebank/service/direct-read?entity_type=event&study_id=312057662&sensor_type=gps&api-token=${token}`,{
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+            'Authorization': `Bearer ${your_api_token}`
+        },
+        body: JSON.stringify(data) 
+                
+            })
+
+            .then(response => response.json())
+            .then(data => {
+                console.log("New data added", data);
+            })
+            
+            .catch(error => {
+                console.error("Error adding new data:", error);
+            });
         }
 
-            // -----Clear Markers-----
+
+        
+
+
+
+
+
+
+
+
+
+
+        // -----Clear Markers-----
          
    function clearPreviousMarker(markers){
 
